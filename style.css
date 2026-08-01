@@ -358,7 +358,7 @@ button[type="submit"]:disabled {
 #relatorio-output h3 {
   font-size: 0.85rem;
   font-weight: 500;
-  color: var(--border-dark);
+  color: var(--accent-orange);
   margin-top: 2rem;
   margin-bottom: 1rem;
 }
