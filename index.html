@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agente de Relatório de Inovação - PIPE</title>
+    
+    <!-- CSS leve e moderno (Pico.css) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    
+    <!-- Biblioteca para renderizar Markdown em HTML -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --primary-focus: rgba(139, 92, 246, 0.15);
+            --card-background-color: rgba(30, 41, 59, 0.6);
+            --typography-spacing-vertical: 1.5rem;
+            --body-background: #0f172a;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.12) 0%, transparent 45%),
+                var(--body-background);
+            color: #e2e8f0;
+            padding-top: 3rem;
+            padding-bottom: 5rem;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            color: #94a3b8;
+            font-size: 1.15rem;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.25);
+            margin-bottom: 2.5rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-card:focus-within {
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        input[type="text"] {
+            background-color: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            color: #f8fafc !important;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25) !important;
+        }
+
+        input[type="text"]::placeholder {
+            color: #64748b;
+        }
+
+        label strong {
+            color: #f1f5f9;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        label small {
+            color: #94a3b8;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        #btn-submit {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            border: none;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 1.05rem;
+            padding: 0.85rem 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+            margin-top: 1.5rem;
+            width: 100%;
+        }
+
+        #btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.5);
+            filter: brightness(1.1);
+        }
+
+        #btn-submit:active {
+            transform: translateY(1px);
+        }
+
+        #btn-submit:disabled {
+            background: rgba(71, 85, 105, 0.5);
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #loading {
+            text-align: center;
+            margin: 3rem 0;
+            font-weight: 500;
+            color: #cbd5e1;
+        }
+
+        #loading code {
+            background-color: rgba(139, 92, 246, 0.15);
+            color: #c084fc;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        /* Indicador de processamento personalizado */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        #resultado-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #resultado-container h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 1.25rem;
+        }
+
+        #relatorio-output {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 6px solid var(--primary);
+            line-height: 1.8;
+            color: #cbd5e1;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Estilização interna do Markdown renderizado */
+        #relatorio-output h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        #relatorio-output h3 {
+            font-size: 1.4rem;
+            font-weight: 650;
+            color: #f1f5f9;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        #relatorio-output ul, #relatorio-output ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #relatorio-output p {
+            margin-bottom: 1.5rem;
+        }
+
+        #relatorio-output article.error-box {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header>
+            <h1>Relatório de Inovação Tecnológica</h1>
+            <p>Análise de Trajetórias Tecnológicas (Giovanni Dosi) a partir do banco de dados PIPE.</p>
+        </header>
+
+        <section class="form-card">
+            <form id="form-inovacao">
+                <label for="area">
+                    <strong>Área de Conhecimento:</strong>
+                    <input type="text" id="area" name="area" placeholder="Ex: Biotecnologia, Agronomia, Ciência da Computação" required>
+                </label>
+
+                <label style="margin-top: 1.5rem;">
+                    <strong>Palavras-Chave / Assuntos (Até 3):</strong>
+                    <small>Digite os termos que identificam o desenvolvimento tecnológico</small>
+                </label>
+                <div class="grid-inputs">
+                    <input type="text" class="kw" placeholder="Palavra 1 (Ex: genômica)" required>
+                    <input type="text" class="kw" placeholder="Palavra 2 (Ex: sequenciamento)">
+                    <input type="text" class="kw" placeholder="Palavra 3 (Ex: crispr)">
+                </div>
+
+                <button type="submit" id="btn-submit">
+                    Gerar Relatório de Inovação
+                </button>
+            </form>
+        </section>
+
+        <!-- Indicador de Carregamento -->
+        <div id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Consultando banco <code>pipe</code> e analisando trajetórias tecnológicas com a inteligência do Gemini...</p>
+        </div>
+
+        <!-- Seção do Relatório Final -->
+        <section id="resultado-container" style="display: none;">
+            <h3>Resultado da Análise</h3>
+            <div id="relatorio-output"></div>
+        </section>
+    </main>
+
+    <script>
+        // ⚠️ SUBSTITUA PELA URL DA SUA CLOUD FUNCTION / CLOUD RUN IMPLANTADA
+        const API_URL = "https://agente-de-inovacao-api-774114253582.southamerica-east1.run.app";
+
+        document.getElementById('form-inovacao').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const areaInput = document.getElementById('area').value.trim();
+            const kwInputs = document.querySelectorAll('.kw');
+            
+            // Extrai as palavras preenchidas e limita a no máximo 3
+            const palavras = Array.from(kwInputs)
+                                  .map(input => input.value.trim())
+                                  .filter(val => val !== "")
+                                  .slice(0, 3);
+
+            const btn = document.getElementById('btn-submit');
+            const loading = document.getElementById('loading');
+            const resultadoContainer = document.getElementById('resultado-container');
+            const output = document.getElementById('relatorio-output');
+
+            // Atualiza o estado da interface
+            btn.disabled = true;
+            loading.style.display = 'block';
+            resultadoContainer.style.display = 'none';
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ 
+                        area: areaInput, 
+                        palavras: palavras 
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok || data.error) {
+                    output.innerHTML = `
+                        <article class="error-box">
+                            <strong>Erro no Processamento:</strong> ${data.error || 'Não foi possível gerar o relatório.'}
+                        </article>
+                    `;
+                } else if (data.relatorio) {
+                    // Renderiza o relatório retornado em Markdown para HTML seguro
+                    output.innerHTML = marked.parse(data.relatorio);
+                }
+                
+                resultadoContainer.style.display = 'block';
+
+            } catch (err) {
+                output.innerHTML = `
+                    <article class="error-box">
+                        <strong>Erro de Conexão:</strong> Não foi possível comunicar com o servidor backend. Verifique a URL da Cloud Function e as configurações de CORS.
+                    </article>
+                `;
+                resultadoContainer.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
