@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THFHJJW5JP"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-THFHJJW5JP');
+    </script>
+    
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+    <!-- SEO Meta Tags -->
+    <title>Relatório de Inovação Tecnológica | PIPE</title>
+    <meta name="description" content="Análise de trajetórias tecnológicas (Giovanni Dosi) baseada nos dados do PIPE-FAPESP utilizando inteligência artificial.">
+    <meta name="author" content="Raphael C. M. Pereira">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Biblioteca para renderizar Markdown em HTML -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+    <!-- Header / Hero Section -->
+    <header class="section section-cream" id="hero-section">
+        <div class="container-text">
+            <div class="hero-meta">Discussão em Foco</div>
+            <h1 id="main-title">Relatório de Inovação Tecnológica</h1>
+            <p>Análise de Trajetórias Tecnológicas (Giovanni Dosi) a partir do banco de dados PIPE.</p>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container-text" style="padding-top: 3rem; padding-bottom: 3rem;">
+        
+        <section class="form-card">
+            <form id="form-inovacao">
+                <label for="area">
+                    <strong>Área de Conhecimento:</strong>
+                    <input type="text" id="area" name="area" placeholder="Ex: Biotecnologia, Agronomia, Ciência da Computação" required>
+                </label>
+
+                <label style="margin-top: 1.5rem;">
+                    <strong>Palavras-Chave / Assuntos (Até 3):</strong>
+                    <small>Digite os termos que identificam o desenvolvimento tecnológico no banco PIPE</small>
+                </label>
+                
+                <div class="grid-inputs">
+                    <input type="text" class="kw" placeholder="Palavra 1 (Ex: genômica)" required>
+                    <input type="text" class="kw" placeholder="Palavra 2 (Ex: sequenciamento)">
+                    <input type="text" class="kw" placeholder="Palavra 3 (Ex: crispr)">
+                </div>
+
+                <button type="submit" id="btn-submit">
+                    Gerar Relatório de Inovação
+                </button>
+            </form>
+        </section>
+
+        <!-- Indicador de Carregamento -->
+        <div id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p style="text-align: center; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-dark-muted);">
+                Consultando banco <code>pipe</code> e analisando trajetórias tecnológicas com a inteligência do Gemini...
+            </p>
+        </div>
+
+        <!-- Seção do Relatório Final -->
+        <section id="resultado-container" style="display: none;">
+            <h3>Resultado da Análise</h3>
+            <div id="relatorio-output"></div>
+        </section>
+        
+    </main>
+
+    <!-- Footer / Contact Section -->
+    <footer class="footer" id="contact-section">
+        <div class="container-text">
+            <h2>Gostaria de saber mais sobre a pesquisa?</h2>
+            <p>Entre em contato pelo WhatsApp para discussões acadêmicas ou parcerias.</p>
+            
+            <a href="https://api.whatsapp.com/send?phone=5511952345453&text=Olá%20Raphael,%20gostaria%20de%20saber%20mais%20sobre%20a%20pesquisa%20sobre%20Disrupção%20Tecnológica%20em%20Redes%20de%20Inovação." 
+               class="footer-contact-btn" target="_blank" rel="noopener">
+                <!-- WhatsApp Icon SVG -->
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="vertical-align: middle; margin-right: 6px;">
+                    <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.982L2 22l5.202-1.362a9.92 9.92 0 0 0 4.808 1.242h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.667-1.037-5.176-2.922-7.062A9.927 9.927 0 0 0 12.012 2zm5.72 13.918c-.313.88-1.57 1.73-2.176 1.85-.562.11-1.28.2-3.754-.78-3.164-1.253-5.2-4.453-5.36-4.663-.157-.21-1.267-1.688-1.267-3.21 0-1.52.793-2.27 1.077-2.572.28-.303.623-.377.83-.377.208 0 .417.002.6.01.19.01.442-.075.694.532.253.608.868 2.11.944 2.262.075.152.126.33.025.532-.1.202-.152.33-.3.507-.152.177-.318.393-.455.526-.152.146-.31.306-.133.608.177.302.784 1.29 1.683 2.09.16.14.3.26.47.37.28.18.57.147.74-.044.172-.19.74-.86.94-1.155.202-.295.4-.247.674-.146.275.1.1.868 2.146 1.772 1.077.532 1.737.8 1.813.927.075.127.075.736-.238 1.616z"/>
+                </svg>
+                <span>Raphael C. M. Pereira</span>
+            </a>
+            
+            <p class="footer-copyright">
+                &copy; 2026 Todos os direitos autorais reservados.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // ⚠️ SUBSTITUA PELA URL DA SUA CLOUD FUNCTION / CLOUD RUN IMPLANTADA
+        const API_URL = "https://agente-de-inovacao-api-774114253582.southamerica-east1.run.app";
+
+        document.getElementById('form-inovacao').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const areaInput = document.getElementById('area').value.trim();
+            const kwInputs = document.querySelectorAll('.kw');
+            
+            // Extrai as palavras preenchidas e limita a no máximo 3
+            const palavras = Array.from(kwInputs)
+                                  .map(input => input.value.trim())
+                                  .filter(val => val !== "")
+                                  .slice(0, 3);
+
+            const btn = document.getElementById('btn-submit');
+            const loading = document.getElementById('loading');
+            const resultadoContainer = document.getElementById('resultado-container');
+            const output = document.getElementById('relatorio-output');
+
+            // Atualiza o estado da interface
+            btn.disabled = true;
+            loading.style.display = 'block';
+            resultadoContainer.style.display = 'none';
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ 
+                        area: areaInput, 
+                        palavras: palavras 
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok || data.error) {
+                    output.innerHTML = `
+                        <div class="error-box">
+                            <strong>Erro no Processamento:</strong> ${data.error || 'Não foi possível gerar o relatório.'}
+                        </div>
+                    `;
+                } else if (data.relatorio) {
+                    // Renderiza o relatório retornado em Markdown para HTML seguro
+                    output.innerHTML = marked.parse(data.relatorio);
+                }
+                
+                resultadoContainer.style.display = 'block';
+
+            } catch (err) {
+                output.innerHTML = `
+                    <div class="error-box">
+                        <strong>Erro de Conexão:</strong> Não foi possível comunicar com o servidor backend. Verifique a URL da API e as configurações de CORS.
+                    </div>
+                `;
+                resultadoContainer.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
